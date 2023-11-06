@@ -58,3 +58,23 @@ The jwt contents.
 
 You can set your issuer to whatever you like.
 
+## Traefik
+
+```bash
+# If it's the firt install of mkcert, run
+mkcert -install
+
+# Generate certificate for domain "docker.localhost"
+
+mkcert -cert-file certs/local-cert.pem -key-file certs/local-key.pem "docker.localhost" "*.docker.localhost"  
+
+docker-compose up - ./docker-compose.traefik.yml -d
+```
+
+
+### links
+
+[traefik](https://traefik.docker.localhost/)  
+[whoami](https://whoami.docker.localhost/)  
+[sts-discovery](https://sts.docker.localhost/.well-known/openid-configuration)  
+[sts-jwks](http://sts.docker.localhost/.well-known/jwks)  
