@@ -78,6 +78,42 @@ docker-compose up - ./docker-compose.traefik.yml -d
 ### links
 
 [traefik](https://traefik.docker.localhost/)  
+
 [whoami](https://whoami.docker.localhost/)  
+
 [sts-discovery](https://sts.docker.localhost/.well-known/openid-configuration)  
+
+```json
+{
+    "issuer": "http://sts.docker.localhost",
+    "jwks_uri": "http://sts.docker.localhost/.well-known/jwks",
+    "token_endpoint": "http://sts.docker.localhost/oauth/token",
+    "scopes_supported": [
+        "offline_access"
+    ],
+    "grant_types_supported": [
+        "client_credentials"
+    ],
+    "token_endpoint_auth_methods_supported": [
+        "client_secret_basic",
+        "client_secret_post"
+    ]
+}
+```
 [sts-jwks](http://sts.docker.localhost/.well-known/jwks)  
+
+```json
+{
+    "keys": [
+        {
+            "alg": "ES256",
+            "crv": "P-256",
+            "kid": "0b2cd2e54c924ce89f010f242862367d",
+            "kty": "EC",
+            "use": "sig",
+            "x": "YMrUm_S5-d-euQHrrzQMWJSFafSYcgUE0RYjfI7sErI",
+            "y": "u-YUnRNGozzTF2mgxt_ecw9fFcY7Jqj01qJte53FZ58"
+        }
+    ]
+}
+```
