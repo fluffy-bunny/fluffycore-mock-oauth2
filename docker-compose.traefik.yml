@@ -1,0 +1,91 @@
+version: '3.8'
+
+services:
+  reverse-proxy:
+    extends:
+      file: ./docker-compose-common.yml
+      service: micro
+    image: traefik:latest
+    container_name: traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      # Web
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Map the static configuration into the container
+      - ./config/traefik/static.yml:/etc/traefik/traefik.yml:ro
+      # Map the dynamic configuration into the container
+      - ./config/traefik/dynamic.yml:/etc/traefik/dynamic.yml:ro
+      # Map the certificats into the container
+      - ./certs:/etc/certs:ro
+    networks:
+      - proxy
+  sts:
+    container_name: sts
+    extends:
+      file: ./docker-compose-common.yml
+      service: micro
+    image: ghstahl/fluffycore.starterkit:latest
+    environment:
+      APPLICATION_NAME: "sts"
+      APPLICATION_ENVIRONMENT: "DOCKER"
+      LOG_LEVEL": "debug"
+      PRETTY_LOG: "true"
+      OAUTH2_PORT: "50053"
+      CONFIG_FILES__CLIENT_PATH: "/config/clients.json"
+    volumes:
+      - ./config/clients.json:/config/clients.json
+    entrypoint: [ "/app/server", "serve" ]
+    labels:
+      # Enable this container to be mapped by traefik
+      # For more information, see: https://docs.traefik.io/providers/docker/#exposedbydefault
+      - "traefik.enable=true"
+      # Define the network that should be used
+      - "traefik.docker.network=proxy"
+      # URL to reach this container
+      - "traefik.http.routers.sts.rule=Host(`sts.docker.localhost`)"
+      # Activation of TLS
+      - "traefik.http.routers.sts.tls=true"
+      # If port is different than 80, use the following service:
+      # - "traefik.http.services.<service_name>.loadbalancer.server.port=<port>"
+      - "traefik.http.services.sts.loadbalancer.server.port=50053"
+    networks:
+      - proxy
+      - sts   
+
+  whoami:
+    container_name: whoami
+    extends:
+      file: ./docker-compose-common.yml
+      service: micro
+    image: containous/whoami
+    security_opt:
+      - no-new-privileges:true
+    labels:
+      # Enable this container to be mapped by traefik
+      # For more information, see: https://docs.traefik.io/providers/docker/#exposedbydefault
+      - "traefik.enable=true"
+      # Define the network that should be used
+      - "traefik.docker.network=proxy"
+      # URL to reach this container
+      - "traefik.http.routers.whoami.rule=Host(`whoami.docker.localhost`)"
+      # Activation of TLS
+      - "traefik.http.routers.whoami.tls=true"
+      # If port is different than 80, use the following service:
+      # - "traefik.http.services.<service_name>.loadbalancer.server.port=<port>"
+    depends_on:
+      sts:
+        condition: service_healthy
+    networks:
+      - proxy
+      - sts   
+#====================================================
+# NETWORKS
+#====================================================
+networks:
+  proxy:
+  sts:
