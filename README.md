@@ -1,6 +1,9 @@
 # fluffycore-mock-oauth2
 
-docker-compose that hosts a static configurable client_credentials flow oauth server.  
+Have you ever wanted a dev oauth2 server just for client_credentials flow?  Also known as Machine-2-Machine tokens.  
+This project has a simple docker-compose and a secure traefik configuration.  
+
+docker-compose that hosts a static configurable client_credentials flow oauth server.   
 
 ## Docker-Compose
 
