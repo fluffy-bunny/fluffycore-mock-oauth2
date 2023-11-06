@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  starterkit:
+    container_name: starterkit
+    extends:
+      file: ./docker-compose-common.yml
+      service: micro
+    image: ghstahl/fluffycore.starterkit:latest
+    ports:
+      - "8084:50053"
+    environment:
+      APPLICATION_NAME: "mydevoauthserver"
+      APPLICATION_ENVIRONMENT: "DOCKER"
+      LOG_LEVEL": "debug"
+      PRETTY_LOG: "true"
+      OAUTH2_PORT: "50053"
+      CONFIG_FILES__CLIENT_PATH: "/config/clients.json"
+    volumes:
+      - ./config/clients.json:/config/clients.json
+    entrypoint: [ "/app/server", "serve" ]
+
+  whoami:
+    container_name: whoami
+    extends:
+      file: ./docker-compose-common.yml
+      service: micro
+    image: containous/whoami
+    security_opt:
+      - no-new-privileges:true
+    depends_on:
+      starterkit:
+        condition: service_healthy      
